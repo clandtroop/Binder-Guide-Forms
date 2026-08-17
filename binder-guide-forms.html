@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OP 840 — Location Binder Guide: Forms Reference</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page-plane:     #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --border:         rgba(11,11,11,0.10);
+    --series-1: #2a78d6; /* Binder 1 — Morning Meeting */
+    --series-2: #eb6834; /* Binder 2 — In-Service */
+    --series-3: #1baf7a; /* Binder 3 — Site Inspection */
+    --series-4: #eda100; /* Binder 4 — Joint Commission / Operations */
+    --series-5: #e87ba4; /* Binder 5 — SDS / Hazardous Materials */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page-plane:     #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --border:         rgba(255,255,255,0.10);
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --series-3: #199e70;
+      --series-4: #c98500;
+      --series-5: #d55181;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page-plane:     #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --border:         rgba(255,255,255,0.10);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .viz-root {
+    display: block;
+    min-height: 100vh;
+    background: var(--page-plane);
+    color: var(--text-primary);
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
+
+  header.page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  header.page-head h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  header.page-head p.sub {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+  }
+  .theme-toggle {
+    border: 1px solid var(--border);
+    background: var(--surface-1);
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  /* stat row */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .stat-tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .stat-tile .val {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .stat-tile .label {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* controls */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  #search {
+    flex: 1 1 220px;
+    min-width: 180px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-1);
+    color: var(--text-primary);
+    font-size: 13.5px;
+  }
+  #search:focus { outline: 2px solid var(--series-1); outline-offset: 1px; }
+  .chip {
+    border: 1px solid var(--border);
+    background: var(--surface-1);
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+  }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .chip[data-active="true"] {
+    color: var(--text-primary);
+    border-color: currentColor;
+    font-weight: 600;
+  }
+
+  /* binder sections */
+  .binder {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent, var(--series-1));
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .binder-head {
+    padding: 14px 18px 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .binder-head .num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--accent, var(--series-1));
+    text-transform: uppercase;
+  }
+  .binder-head h2 {
+    font-size: 15.5px;
+    margin: 0;
+    font-weight: 700;
+  }
+  .binder-head .count {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  .tab-block { padding: 0 18px 14px; }
+  .tab-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 10px 0 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--gridline);
+  }
+  .tab-block > .tab-title:first-child { border-top: none; padding-top: 0; margin-top: 4px; }
+
+  .form-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 4px;
+    border-radius: 6px;
+  }
+  .form-row:hover { background: var(--gridline); }
+  .code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--accent, var(--series-1));
+    background: color-mix(in srgb, var(--accent, var(--series-1)) 14%, transparent);
+    padding: 2px 7px;
+    border-radius: 5px;
+    flex: none;
+    min-width: 62px;
+    text-align: center;
+  }
+  .title {
+    font-size: 13.5px;
+    color: var(--text-primary);
+    flex: 1 1 auto;
+  }
+  .title .note {
+    display: block;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+  .link-btn {
+    flex: none;
+    font-size: 11px;
+    color: var(--text-muted);
+    border: 1px dashed var(--border);
+    background: transparent;
+    padding: 4px 9px;
+    border-radius: 999px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .link-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+
+  footer.note {
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    border-top: 1px solid var(--gridline);
+    padding-top: 14px;
+  }
+  footer.note code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: var(--gridline);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="viz-root">
+  <div class="wrap">
+
+    <header class="page-head">
+      <div>
+        <h1>OP 840 — Location Binder Guide</h1>
+        <p class="sub">Forms &amp; documentation reference · Rev. 2026.06.01 · organized by binder for accreditation readiness</p>
+      </div>
+      <button class="theme-toggle" id="themeToggle" type="button">🌙 Dark mode</button>
+    </header>
+
+    <div class="stats">
+      <div class="stat-tile"><div class="val">5</div><div class="label">Binders</div></div>
+      <div class="stat-tile"><div class="val">9</div><div class="label">Sections / tabs</div></div>
+      <div class="stat-tile"><div class="val">32</div><div class="label">Form references</div></div>
+      <div class="stat-tile"><div class="val">26</div><div class="label">Unique form numbers</div></div>
+    </div>
+
+    <div class="controls">
+      <input id="search" type="text" placeholder="Search by form number or name (e.g. OP 519, incident, calibration)…">
+      <div class="chip" data-filter="all" data-active="true"><span class="dot" style="background:var(--text-muted)"></span>All</div>
+      <div class="chip" data-filter="b1"><span class="dot" style="background:var(--series-1)"></span>Binder 1</div>
+      <div class="chip" data-filter="b2"><span class="dot" style="background:var(--series-2)"></span>Binder 2</div>
+      <div class="chip" data-filter="b3"><span class="dot" style="background:var(--series-3)"></span>Binder 3</div>
+      <div class="chip" data-filter="b4"><span class="dot" style="background:var(--series-4)"></span>Binder 4</div>
+      <div class="chip" data-filter="b5"><span class="dot" style="background:var(--series-5)"></span>Binder 5</div>
+    </div>
+
+    <div id="binders"></div>
+
+    <footer class="note">
+      Link buttons are placeholders pointing to the general Dome document tree
+      (<code>dome.rotech.com/trees</code>) until exact <code>item=</code> links are filled in for each form.
+      Source: OP 840 Location Binder Guide, Rev. 2026.06.01.
+    </footer>
+
+  </div>
+</div>
+
+<script>
+const DOME_FALLBACK = "https://dome.rotech.com/trees";
+
+const DATA = [
+  {
+    id: "b1", num: "Binder 1", title: "Morning Meeting", color: "var(--series-1)",
+    sections: [
+      { tab: null, forms: [
+        { code: "OP 843", title: "Morning Meeting Checklist" },
+        { code: "OP 543", title: "Morning Meeting Attendance Sheet" },
+        { code: "OP 519", title: "Targeted Surveillance Log", note: "Current log" },
+        { code: "OP 519", title: "Employee Targeted Surveillance Log", note: "Separate — kept confidential on LCM computer" },
+      ]},
+    ],
+  },
+  {
+    id: "b2", num: "Binder 2", title: "In-Service", color: "var(--series-2)",
+    sections: [
+      { tab: null, forms: [
+        { code: "OP 520", title: "In-Service Attendance Record" },
+      ]},
+    ],
+  },
+  {
+    id: "b3", num: "Binder 3", title: "Site Inspection", color: "var(--series-3)",
+    sections: [
+      { tab: null, forms: [
+        { code: "OP 564", title: "Patient Complaint Report" },
+        { code: "RHI 1000", title: "Patient Information Booklet", note: "Sections flagged: rights & responsibilities, delivery/service/repair/warranty, complaint resolution, billing & refund, terms of agreement" },
+        { code: "OP 201", title: "Field Management Organizational Chart" },
+      ]},
+    ],
+  },
+  {
+    id: "b4", num: "Binder 4", title: "Joint Commission / Operations", color: "var(--series-4)",
+    sections: [
+      { tab: "Tab 1 — Joint Commission (12-month history)", forms: [
+        { code: "OP 541", title: "Location Readiness Tool", note: "Completed January & July" },
+        { code: "JC 427", title: "Personnel Records Review", note: "Completed January & July" },
+        { code: "OP 519", title: "Infection Control Targeted Surveillance Log(s)" },
+        { code: "OP 542", title: "Infectious Disease Trending Report(s)", note: "Semi-annual" },
+        { code: "OP 752", title: "Influenza Vaccination Data Collection" },
+        { code: "OP 520", title: "In-Service Attendance Record" },
+        { code: "OP 201", title: "Field Management Organizational Chart" },
+      ]},
+      { tab: "Tab 2 — Emergency Preparedness", forms: [
+        { code: "OP 525", title: "Emergency Preparedness Plan" },
+        { code: "OP 857", title: "Emergency Documentation & Recovery", note: "As applicable — if plan activated" },
+        { code: "RM 1240", title: "Emergency Action and Fire Prevention Plan" },
+        { code: "FDA 001", title: "Equipment Maintenance Log", note: "Documenting weekly smoke alarm checks" },
+        { code: "FDA 001", title: "Equipment Maintenance Log", note: "Documenting monthly check of emergency lighting & exit signs (as applicable)" },
+      ]},
+      { tab: "Tab 3 — Incidents", forms: [
+        { code: "OP 518", title: "Incident Report" },
+        { code: "RM 1202", title: "Vehicle Accident Report" },
+      ]},
+      { tab: "Tab 4 — Complaints", forms: [
+        { code: "OP 522", title: "Complaint Tracking Log" },
+        { code: "OP 564", title: "Complaint Report (Location)" },
+        { code: "OP 566", title: "Complaint Resolution Letter" },
+      ]},
+      { tab: "Tab 5 — Facility", forms: [
+        { code: "OP 512", title: "Facility Safety Inspection", note: "Completed January & July, with annual fire drill record" },
+        { code: "FDA 025", title: "Self-Calibrating Analyzer", note: "Manufacturer annual calibration / certification" },
+        { code: "FDA 003", title: "Oxygen Analyzer", note: "Manufacturer annual calibration / certification" },
+      ]},
+    ],
+  },
+  {
+    id: "b5", num: "Binder 5", title: "SDS / Hazardous Materials", color: "var(--series-5)",
+    sections: [
+      { tab: null, forms: [
+        { code: "RM 1232", title: "Hazardous Chemical Inventory List" },
+        { code: "RM 1233", title: "Site Specific Information Sheet" },
+        { code: "RM 1234", title: "Hazard Communication Program Training Record", note: "Copy also goes in employee file" },
+        { code: "RM 1238", title: "PPE Hazard Assessment Form", note: "Copy also goes in employee file" },
+      ]},
+    ],
+  },
+];
+
+const container = document.getElementById("binders");
+
+function domeUrl(code) {
+  return `${DOME_FALLBACK}?q=${encodeURIComponent(code)}`;
+}
+
+DATA.forEach(binder => {
+  const el = document.createElement("section");
+  el.className = "binder";
+  el.dataset.binder = binder.id;
+  el.style.setProperty("--accent", binder.color);
+
+  const formCount = binder.sections.reduce((n, s) => n + s.forms.length, 0);
+
+  const head = document.createElement("div");
+  head.className = "binder-head";
+  head.innerHTML = `<span class="num">${binder.num}</span><h2>${binder.title}</h2><span class="count">${formCount} form${formCount === 1 ? "" : "s"}</span>`;
+  el.appendChild(head);
+
+  binder.sections.forEach(section => {
+    const block = document.createElement("div");
+    block.className = "tab-block";
+    if (section.tab) {
+      const t = document.createElement("div");
+      t.className = "tab-title";
+      t.textContent = section.tab;
+      block.appendChild(t);
+    }
+    section.forms.forEach(f => {
+      const row = document.createElement("div");
+      row.className = "form-row";
+      row.dataset.search = (f.code + " " + f.title + " " + (f.note || "")).toLowerCase();
+      row.innerHTML = `
+        <span class="code">${f.code}</span>
+        <span class="title">${f.title}${f.note ? `<span class="note">${f.note}</span>` : ""}</span>
+        <a class="link-btn" href="${domeUrl(f.code)}" target="_blank" rel="noopener" title="Placeholder link — replace with the exact Dome item URL">Add link ↗</a>
+      `;
+      block.appendChild(row);
+    });
+    el.appendChild(block);
+  });
+
+  container.appendChild(el);
+});
+
+// filtering
+let activeBinder = "all";
+const searchInput = document.getElementById("search");
+const chips = document.querySelectorAll(".chip");
+
+function applyFilters() {
+  const q = searchInput.value.trim().toLowerCase();
+  document.querySelectorAll(".binder").forEach(binderEl => {
+    const matchesBinder = activeBinder === "all" || binderEl.dataset.binder === activeBinder;
+    let anyVisibleRow = false;
+    binderEl.querySelectorAll(".form-row").forEach(row => {
+      const matchesSearch = !q || row.dataset.search.includes(q);
+      const show = matchesBinder && matchesSearch;
+      row.classList.toggle("hidden", !show);
+      if (show) anyVisibleRow = true;
+    });
+    binderEl.querySelectorAll(".tab-block").forEach(block => {
+      const hasVisible = [...block.querySelectorAll(".form-row")].some(r => !r.classList.contains("hidden"));
+      block.classList.toggle("hidden", !hasVisible);
+    });
+    binderEl.classList.toggle("hidden", !anyVisibleRow);
+  });
+}
+
+chips.forEach(chip => {
+  chip.addEventListener("click", () => {
+    activeBinder = chip.dataset.filter;
+    chips.forEach(c => c.dataset.active = String(c === chip));
+    applyFilters();
+  });
+});
+searchInput.addEventListener("input", applyFilters);
+
+// theme toggle
+const toggleBtn = document.getElementById("themeToggle");
+toggleBtn.addEventListener("click", () => {
+  const root = document.documentElement;
+  const isDark = root.getAttribute("data-theme") === "dark";
+  root.setAttribute("data-theme", isDark ? "light" : "dark");
+  toggleBtn.textContent = isDark ? "🌙 Dark mode" : "☀️ Light mode";
+});
+</script>
+</body>
+</html>
