@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OP 840 — Location Binder Guide: Forms Reference</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1:      #ffffff;
+    --page-plane:     #f6f8fa;
+    --text-primary:   #131922;
+    --text-secondary: #5d6773;
+    --text-muted:     #8892a0;
+    --gridline:       #e7eaef;
+    --border:         rgba(19,25,34,0.08);
+    --brand:          #0053a1; /* Rotech navbar / primary blue */
+    --series-1: #0053a1; /* Binder 1 — Morning Meeting (blue) */
+    --series-2: #1d7a4d; /* Binder 2 — In-Service (green) */
+    --series-3: #b06a00; /* Binder 3 — Site Inspection (amber) */
+    --series-4: #00a0c6; /* Binder 4 — Joint Commission / Operations (teal) */
+    --series-5: #c0394f; /* Binder 5 — SDS / Hazardous Materials (red) */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1:      #171b21;
+      --page-plane:     #0d0f13;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c8d1;
+      --text-muted:     #8892a0;
+      --gridline:       #2a2f38;
+      --border:         rgba(255,255,255,0.10);
+      --brand:          #2e7fd6;
+      --series-1: #2e7fd6;
+      --series-2: #2f9e68;
+      --series-3: #d68a1f;
+      --series-4: #29b8dc;
+      --series-5: #d85770;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1:      #171b21;
+    --page-plane:     #0d0f13;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c8d1;
+    --text-muted:     #8892a0;
+    --gridline:       #2a2f38;
+    --border:         rgba(255,255,255,0.10);
+    --brand:          #2e7fd6;
+    --series-1: #2e7fd6;
+    --series-2: #2f9e68;
+    --series-3: #d68a1f;
+    --series-4: #29b8dc;
+    --series-5: #d85770;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .viz-root {
+    display: block;
+    min-height: 100vh;
+    background: var(--page-plane);
+    color: var(--text-primary);
+  }
+
+  /* top navbar, styled after the Accreditation Survey Prep app */
+  .app-nav {
+    background: var(--brand);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 20px;
+  }
+  .app-nav .brand-mark {
+    background: #ffffff;
+    color: var(--brand);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    padding: 7px 14px;
+    border-radius: 999px;
+  }
+  .app-nav .app-title {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .app-nav .spacer { flex: 1 1 auto; }
+  .app-nav .app-meta {
+    color: rgba(255,255,255,0.85);
+    font-size: 12px;
+  }
+  .app-nav .theme-toggle {
+    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+    font-size: 12px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .app-nav .theme-toggle:hover { background: rgba(255,255,255,0.22); }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 20px 64px; }
+
+  header.page-head {
+    margin-bottom: 22px;
+  }
+  header.page-head h1 {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+  header.page-head p.sub {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+  }
+
+  /* controls */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  #search {
+    flex: 1 1 220px;
+    min-width: 180px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-1);
+    color: var(--text-primary);
+    font-size: 13.5px;
+  }
+  #search:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+  .chip {
+    border: 1px solid var(--border);
+    background: var(--surface-1);
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+    font-weight: 600;
+  }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .chip[data-active="true"] {
+    color: #ffffff;
+    border-color: transparent;
+    background: var(--chip-accent, var(--brand));
+  }
+  .chip[data-active="true"] .dot { background: #ffffff !important; }
+
+  /* binder sections */
+  .binder {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--accent, var(--series-1));
+    border-radius: 12px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(19,25,34,0.06), 0 1px 2px rgba(19,25,34,0.04);
+  }
+  .binder-head {
+    padding: 16px 18px 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .binder-head .num {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--accent, var(--series-1));
+    text-transform: uppercase;
+  }
+  .binder-head h2 {
+    font-size: 16px;
+    margin: 0;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .binder-head .count {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #ffffff;
+    background: var(--accent, var(--series-1));
+    padding: 2px 9px;
+    border-radius: 999px;
+    margin-left: auto;
+  }
+
+  .tab-block { padding: 0 18px 14px; }
+  .tab-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 10px 0 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--gridline);
+  }
+  .tab-block > .tab-title:first-child { border-top: none; padding-top: 0; margin-top: 4px; }
+
+  .form-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 4px;
+    border-radius: 6px;
+  }
+  .form-row:hover { background: var(--gridline); }
+  .code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--accent, var(--series-1));
+    background: color-mix(in srgb, var(--accent, var(--series-1)) 14%, transparent);
+    padding: 2px 7px;
+    border-radius: 5px;
+    flex: none;
+    min-width: 62px;
+    text-align: center;
+  }
+  .title {
+    font-size: 13.5px;
+    color: var(--text-primary);
+    flex: 1 1 auto;
+  }
+  .title .note {
+    display: block;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+  .link-btn {
+    flex: none;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent, var(--series-1));
+    border: 1px dashed color-mix(in srgb, var(--accent, var(--series-1)) 45%, transparent);
+    background: color-mix(in srgb, var(--accent, var(--series-1)) 8%, transparent);
+    padding: 4px 10px;
+    border-radius: 999px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .link-btn:hover {
+    color: #ffffff;
+    background: var(--accent, var(--series-1));
+    border-style: solid;
+  }
+  .link-btn.real {
+    border-style: solid;
+    color: #ffffff;
+    background: var(--accent, var(--series-1));
+  }
+  .link-btn.real:hover { filter: brightness(1.08); }
+  .variant-select {
+    flex: none;
+    max-width: 220px;
+    font-size: 11.5px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--accent, var(--series-1));
+    border: 1px solid color-mix(in srgb, var(--accent, var(--series-1)) 45%, transparent);
+    background: var(--surface-1);
+    padding: 4px 8px;
+    border-radius: 999px;
+  }
+  .local-note {
+    flex: none;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  footer.note {
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    border-top: 1px solid var(--gridline);
+    padding-top: 14px;
+  }
+  footer.note code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: var(--gridline);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="viz-root">
+
+  <nav class="app-nav">
+    <span class="brand-mark">ROTECH</span>
+    <span class="app-title">Accreditation Survey Prep</span>
+    <span class="spacer"></span>
+    <span class="app-meta">OP 840 · Rev. 2026.06.01</span>
+    <button class="theme-toggle" id="themeToggle" type="button">🌙 Dark mode</button>
+  </nav>
+
+  <div class="wrap">
+
+    <header class="page-head">
+      <h1>Location Binder Guide</h1>
+      <p class="sub">Forms &amp; documentation reference · organized by binder for accreditation readiness</p>
+    </header>
+
+    <div class="controls">
+      <input id="search" type="text" placeholder="Search by form number or name (e.g. OP 519, incident, calibration)…">
+      <div class="chip" data-filter="all" data-active="true" style="--chip-accent: var(--text-secondary)"><span class="dot" style="background:var(--text-muted)"></span>All</div>
+      <div class="chip" data-filter="b1" style="--chip-accent: var(--series-1)"><span class="dot" style="background:var(--series-1)"></span>Morning Meeting</div>
+      <div class="chip" data-filter="b2" style="--chip-accent: var(--series-2)"><span class="dot" style="background:var(--series-2)"></span>In-Service</div>
+      <div class="chip" data-filter="b3" style="--chip-accent: var(--series-3)"><span class="dot" style="background:var(--series-3)"></span>Site Inspection</div>
+      <div class="chip" data-filter="b4" style="--chip-accent: var(--series-4)"><span class="dot" style="background:var(--series-4)"></span>Joint Commission / Ops</div>
+      <div class="chip" data-filter="b5" style="--chip-accent: var(--series-5)"><span class="dot" style="background:var(--series-5)"></span>SDS / Hazmat</div>
+    </div>
+
+    <div id="binders"></div>
+
+    <footer class="note">
+      "Open ↗" buttons link directly to the exact form. RM 1238 (PPE Hazard Assessment Form) is job specific —
+      pick a job title from the dropdown to open that role's version. RHI 1000 (Patient Information Booklet)
+      links to the flagged copy on SharePoint; every other form links to its Dome item. The Employee Targeted
+      Surveillance Log uses the same log as the Targeted Surveillance Log above it. Source: OP 840 Location
+      Binder Guide, Rev. 2026.06.01.
+    </footer>
+
+  </div>
+</div>
+
+<script>
+const DOME_FALLBACK = "https://dome.rotech.com/trees";
+
+const DATA = [
+  {
+    id: "b1", num: "Binder 1", title: "Morning Meeting", color: "var(--series-1)",
+    sections: [
+      { tab: null, forms: [
+        { code: "OP 843", title: "Morning Meeting Checklist", link: "https://dome.rotech.com/trees/file?item=16841" },
+        { code: "OP 543", title: "Morning Meeting Attendance Sheet", link: "https://dome.rotech.com/trees/file?item=16840" },
+        { code: "OP 519", title: "Targeted Surveillance Log", note: "Current log", link: "https://dome.rotech.com/trees/file?item=17232" },
+        { code: "OP 519", title: "Employee Targeted Surveillance Log", note: "Separate — kept confidential on LCM computer", link: "https://dome.rotech.com/trees/file?item=17232" },
+      ]},
+    ],
+  },
+  {
+    id: "b2", num: "Binder 2", title: "In-Service", color: "var(--series-2)",
+    sections: [
+      { tab: null, forms: [
+        { code: "OP 520", title: "In-Service Attendance Record", link: "https://dome.rotech.com/trees/file?item=16819" },
+      ]},
+    ],
+  },
+  {
+    id: "b3", num: "Binder 3", title: "Site Inspection", color: "var(--series-3)",
+    sections: [
+      { tab: null, forms: [
+        { code: "OP 564", title: "Patient Complaint Report", link: "https://dome.rotech.com/trees/file?item=16861" },
+        { code: "RHI 1000", title: "Patient Information Booklet", note: "Sections flagged: rights & responsibilities, delivery/service/repair/warranty, complaint resolution, billing & refund, terms of agreement", link: "https://rotech.sharepoint.com/sites/ComplianceandAccreditation/_layouts/15/guestaccess.aspx?share=IQClHlzj863ARYDAm43OEqn-Af821n6PaBBbcUgi17EMjBk&e=iuJrw2" },
+        { code: "OP 201", title: "Field Management Organizational Chart", link: "https://dome.rotech.com/trees/file?item=31255" },
+      ]},
+    ],
+  },
+  {
+    id: "b4", num: "Binder 4", title: "Joint Commission / Operations", color: "var(--series-4)",
+    sections: [
+      { tab: "Tab 1 — Joint Commission (12-month history)", forms: [
+        { code: "OP 541", title: "Location Readiness Tool", note: "Completed January & July", link: "https://dome.rotech.com/trees/file?item=32767" },
+        { code: "JC 427", title: "Personnel Records Review", note: "Completed January & July", link: "https://dome.rotech.com/trees/file?item=32899" },
+        { code: "OP 519", title: "Infection Control Targeted Surveillance Log(s)", link: "https://dome.rotech.com/trees/file?item=17232" },
+        { code: "OP 542", title: "Infectious Disease Trending Report(s)", note: "Semi-annual", link: "https://dome.rotech.com/trees/file?item=33009" },
+        { code: "OP 752", title: "Influenza Vaccination Data Collection", link: "https://dome.rotech.com/trees/file?item=20122" },
+        { code: "OP 520", title: "In-Service Attendance Record", link: "https://dome.rotech.com/trees/file?item=16819" },
+        { code: "OP 201", title: "Field Management Organizational Chart", link: "https://dome.rotech.com/trees/file?item=31255" },
+      ]},
+      { tab: "Tab 2 — Emergency Preparedness", forms: [
+        { code: "OP 525", title: "Emergency Preparedness Plan", link: "https://dome.rotech.com/trees/file?item=32797" },
+        { code: "OP 857", title: "Emergency Documentation & Recovery", note: "As applicable — if plan activated", link: "https://dome.rotech.com/trees/file?item=16806" },
+        { code: "RM 1240", title: "Emergency Action and Fire Prevention Plan", link: "https://dome.rotech.com/trees/file?item=16936" },
+        { code: "FDA 001", title: "Equipment Maintenance Log", note: "Documenting weekly smoke alarm checks", link: "https://dome.rotech.com/trees/file?item=16722" },
+        { code: "FDA 001", title: "Equipment Maintenance Log", note: "Documenting monthly check of emergency lighting & exit signs (as applicable)", link: "https://dome.rotech.com/trees/file?item=16722" },
+      ]},
+      { tab: "Tab 3 — Incidents", forms: [
+        { code: "OP 518", title: "Incident Report", link: "https://dome.rotech.com/trees/file?item=16820" },
+        { code: "RM 1202", title: "Vehicle Accident Report", link: "https://dome.rotech.com/trees/file?item=16958" },
+      ]},
+      { tab: "Tab 4 — Complaints", forms: [
+        { code: "OP 522", title: "Complaint Tracking Log", link: "https://dome.rotech.com/trees/file?item=16862" },
+        { code: "OP 564", title: "Complaint Report (Location)", link: "https://dome.rotech.com/trees/file?item=16861" },
+        { code: "OP 566", title: "Complaint Resolution Letter", link: "https://dome.rotech.com/trees/file?item=17265" },
+      ]},
+      { tab: "Tab 5 — Facility", forms: [
+        { code: "OP 512", title: "Facility Safety Inspection", note: "Completed January & July, with annual fire drill record", link: "https://dome.rotech.com/trees/file?item=32887" },
+        { code: "FDA 025", title: "Self-Calibrating Analyzer", note: "Manufacturer annual calibration / certification", link: "https://dome.rotech.com/trees/file?item=21676" },
+        { code: "FDA 003", title: "Oxygen Analyzer", note: "Manufacturer annual calibration / certification", link: "https://dome.rotech.com/trees/file?item=16725" },
+      ]},
+    ],
+  },
+  {
+    id: "b5", num: "Binder 5", title: "SDS / Hazardous Materials", color: "var(--series-5)",
+    sections: [
+      { tab: null, forms: [
+        { code: "RM 1232", title: "Hazardous Chemical Inventory List", link: "https://dome.rotech.com/trees/file?item=16942" },
+        { code: "RM 1233", title: "Site Specific Information Sheet", link: "https://dome.rotech.com/trees/file?item=31491" },
+        { code: "RM 1234", title: "Hazard Communication Program Training Record", note: "Copy also goes in employee file", link: "https://dome.rotech.com/trees/file?item=16941" },
+        { code: "RM 1238", title: "PPE Hazard Assessment Form", note: "Job specific — copy also goes in employee file", variants: [
+          { title: "AE & Liaison", link: "https://dome.rotech.com/trees/file?item=17397" },
+          { title: "CSR", link: "https://dome.rotech.com/trees/file?item=17389" },
+          { title: "LCM", link: "https://dome.rotech.com/trees/file?item=17390" },
+          { title: "Murray Biomed Repair Center Associate", link: "https://dome.rotech.com/trees/file?item=33884" },
+          { title: "Murray Fulfillment", link: "https://dome.rotech.com/trees/file?item=33882" },
+          { title: "Murray Maintenance", link: "https://dome.rotech.com/trees/file?item=33883" },
+          { title: "PAP Specialist", link: "https://dome.rotech.com/trees/file?item=36122" },
+          { title: "PST", link: "https://dome.rotech.com/trees/file?item=17391" },
+          { title: "PST – CDL", link: "https://dome.rotech.com/trees/file?item=17393" },
+          { title: "PST (T-2 Sites)", link: "https://dome.rotech.com/trees/file?item=17392" },
+          { title: "Pharmacist", link: "https://dome.rotech.com/trees/file?item=34153" },
+          { title: "RC", link: "https://dome.rotech.com/trees/file?item=17394" },
+          { title: "Repair Technician", link: "https://dome.rotech.com/trees/file?item=17395" },
+          { title: "Service Center Supervisor", link: "https://dome.rotech.com/trees/file?item=17396" },
+          { title: "Transfill Delivery", link: "https://dome.rotech.com/trees/file?item=17398" },
+          { title: "Transfill Technician", link: "https://dome.rotech.com/trees/file?item=17399" },
+          { title: "Warehouse Clerk", link: "https://dome.rotech.com/trees/file?item=17400" },
+          { title: "Warehouse Supervisor", link: "https://dome.rotech.com/trees/file?item=17401" },
+          { title: "Warehouse Supervisor (T-2 Sites)", link: "https://dome.rotech.com/trees/file?item=17402" },
+        ]},
+      ]},
+    ],
+  },
+];
+
+const container = document.getElementById("binders");
+
+function domeUrl(code) {
+  return `${DOME_FALLBACK}?q=${encodeURIComponent(code)}`;
+}
+
+function openVariant(sel) {
+  if (sel.value) {
+    window.open(sel.value, "_blank", "noopener");
+    sel.selectedIndex = 0;
+  }
+}
+
+DATA.forEach(binder => {
+  const el = document.createElement("section");
+  el.className = "binder";
+  el.dataset.binder = binder.id;
+  el.style.setProperty("--accent", binder.color);
+
+  const formCount = binder.sections.reduce((n, s) => n + s.forms.length, 0);
+
+  const head = document.createElement("div");
+  head.className = "binder-head";
+  head.innerHTML = `<span class="num">${binder.num}</span><h2>${binder.title}</h2><span class="count">${formCount} form${formCount === 1 ? "" : "s"}</span>`;
+  el.appendChild(head);
+
+  binder.sections.forEach(section => {
+    const block = document.createElement("div");
+    block.className = "tab-block";
+    if (section.tab) {
+      const t = document.createElement("div");
+      t.className = "tab-title";
+      t.textContent = section.tab;
+      block.appendChild(t);
+    }
+    section.forms.forEach(f => {
+      const row = document.createElement("div");
+      row.className = "form-row";
+      const searchBits = [f.code, f.title, f.note || "", (f.variants || []).map(v => v.title).join(" ")];
+      row.dataset.search = searchBits.join(" ").toLowerCase();
+
+      let actionHtml;
+      if (f.variants) {
+        actionHtml = `
+          <select class="variant-select" onchange="openVariant(this)">
+            <option value="" selected disabled>Select job title…</option>
+            ${f.variants.map(v => `<option value="${v.link}">${v.title}</option>`).join("")}
+          </select>
+        `;
+      } else if (f.noLink) {
+        actionHtml = `<span class="local-note">Not in Dome</span>`;
+      } else if (f.link) {
+        actionHtml = `<a class="link-btn real" href="${f.link}" target="_blank" rel="noopener">Open ↗</a>`;
+      } else {
+        actionHtml = `<a class="link-btn" href="${domeUrl(f.code)}" target="_blank" rel="noopener" title="Placeholder link — replace with the exact Dome item URL">Add link ↗</a>`;
+      }
+
+      row.innerHTML = `
+        <span class="code">${f.code}</span>
+        <span class="title">${f.title}${f.note ? `<span class="note">${f.note}</span>` : ""}</span>
+        ${actionHtml}
+      `;
+      block.appendChild(row);
+    });
+    el.appendChild(block);
+  });
+
+  container.appendChild(el);
+});
+
+// filtering
+let activeBinder = "all";
+const searchInput = document.getElementById("search");
+const chips = document.querySelectorAll(".chip");
+
+function applyFilters() {
+  const q = searchInput.value.trim().toLowerCase();
+  document.querySelectorAll(".binder").forEach(binderEl => {
+    const matchesBinder = activeBinder === "all" || binderEl.dataset.binder === activeBinder;
+    let anyVisibleRow = false;
+    binderEl.querySelectorAll(".form-row").forEach(row => {
+      const matchesSearch = !q || row.dataset.search.includes(q);
+      const show = matchesBinder && matchesSearch;
+      row.classList.toggle("hidden", !show);
+      if (show) anyVisibleRow = true;
+    });
+    binderEl.querySelectorAll(".tab-block").forEach(block => {
+      const hasVisible = [...block.querySelectorAll(".form-row")].some(r => !r.classList.contains("hidden"));
+      block.classList.toggle("hidden", !hasVisible);
+    });
+    binderEl.classList.toggle("hidden", !anyVisibleRow);
+  });
+}
+
+chips.forEach(chip => {
+  chip.addEventListener("click", () => {
+    activeBinder = chip.dataset.filter;
+    chips.forEach(c => c.dataset.active = String(c === chip));
+    applyFilters();
+  });
+});
+searchInput.addEventListener("input", applyFilters);
+
+// theme toggle
+const toggleBtn = document.getElementById("themeToggle");
+toggleBtn.addEventListener("click", () => {
+  const root = document.documentElement;
+  const isDark = root.getAttribute("data-theme") === "dark";
+  root.setAttribute("data-theme", isDark ? "light" : "dark");
+  toggleBtn.textContent = isDark ? "🌙 Dark mode" : "☀️ Light mode";
+});
+</script>
+</body>
+</html>
