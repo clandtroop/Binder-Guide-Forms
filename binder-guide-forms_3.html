@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Location Binder Guide: Forms Reference</title>
+<title>OP 840 — Location Binder Guide: Forms Reference</title>
 <style>
   .viz-root {
     color-scheme: light;
@@ -264,6 +264,30 @@
     background: var(--accent, var(--series-1));
     border-style: solid;
   }
+  .link-btn.real {
+    border-style: solid;
+    color: #ffffff;
+    background: var(--accent, var(--series-1));
+  }
+  .link-btn.real:hover { filter: brightness(1.08); }
+  .variant-select {
+    flex: none;
+    max-width: 220px;
+    font-size: 11.5px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--accent, var(--series-1));
+    border: 1px solid color-mix(in srgb, var(--accent, var(--series-1)) 45%, transparent);
+    background: var(--surface-1);
+    padding: 4px 8px;
+    border-radius: 999px;
+  }
+  .local-note {
+    flex: none;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
 
   footer.note {
     margin-top: 24px;
@@ -288,16 +312,17 @@
 
   <nav class="app-nav">
     <span class="brand-mark">ROTECH</span>
-    <span class="app-title">Accreditation</span>
+    <span class="app-title">Accreditation Survey Prep</span>
     <span class="spacer"></span>
+    <span class="app-meta">OP 840 · Rev. 2026.06.01</span>
     <button class="theme-toggle" id="themeToggle" type="button">🌙 Dark mode</button>
   </nav>
 
   <div class="wrap">
 
     <header class="page-head">
-      <h1>Binders Form Reference</h1>
-      <p class="sub">Forms &amp; documentation reference · organized by binder for accreditation readiness. Click a link to pull the file you are looking for.</p>
+      <h1>Location Binder Guide</h1>
+      <p class="sub">Forms &amp; documentation reference · organized by binder for accreditation readiness</p>
     </header>
 
     <div class="controls">
@@ -313,7 +338,11 @@
     <div id="binders"></div>
 
     <footer class="note">
-      
+      "Open ↗" buttons link directly to the exact form. RM 1238 (PPE Hazard Assessment Form) is job specific —
+      pick a job title from the dropdown to open that role's version. RHI 1000 (Patient Information Booklet)
+      links to the flagged copy on SharePoint; every other form links to its Dome item. The Employee Targeted
+      Surveillance Log uses the same log as the Targeted Surveillance Log above it. Source: OP 840 Location
+      Binder Guide, Rev. 2026.06.01.
     </footer>
 
   </div>
@@ -327,10 +356,10 @@ const DATA = [
     id: "b1", num: "Binder 1", title: "Morning Meeting", color: "var(--series-1)",
     sections: [
       { tab: null, forms: [
-        { code: "OP 843", title: "Morning Meeting Checklist" },
-        { code: "OP 543", title: "Morning Meeting Attendance Sheet" },
-        { code: "OP 519", title: "Targeted Surveillance Log", note: "Blank log" },
-        { code: "OP 519", title: "Employee Targeted Surveillance Log", note: "Separate — confidential Stored on LCM computer" },
+        { code: "OP 843", title: "Morning Meeting Checklist", link: "https://dome.rotech.com/trees/file?item=16841" },
+        { code: "OP 543", title: "Morning Meeting Attendance Sheet", link: "https://dome.rotech.com/trees/file?item=16840" },
+        { code: "OP 519", title: "Targeted Surveillance Log", note: "Current log", link: "https://dome.rotech.com/trees/file?item=17232" },
+        { code: "OP 519", title: "Employee Targeted Surveillance Log", note: "Separate — kept confidential on LCM computer", link: "https://dome.rotech.com/trees/file?item=17232" },
       ]},
     ],
   },
@@ -338,7 +367,7 @@ const DATA = [
     id: "b2", num: "Binder 2", title: "In-Service", color: "var(--series-2)",
     sections: [
       { tab: null, forms: [
-        { code: "OP 520", title: "In-Service Attendance Record" },
+        { code: "OP 520", title: "In-Service Attendance Record", link: "https://dome.rotech.com/trees/file?item=16819" },
       ]},
     ],
   },
@@ -346,9 +375,9 @@ const DATA = [
     id: "b3", num: "Binder 3", title: "Site Inspection", color: "var(--series-3)",
     sections: [
       { tab: null, forms: [
-        { code: "OP 564", title: "Patient Complaint Report" },
-        { code: "RHI 1000", title: "Patient Information Booklet"},
-        { code: "OP 201", title: "Field Management Organizational Chart" },
+        { code: "OP 564", title: "Patient Complaint Report", link: "https://dome.rotech.com/trees/file?item=16861" },
+        { code: "RHI 1000", title: "Patient Information Booklet", note: "Sections flagged: rights & responsibilities, delivery/service/repair/warranty, complaint resolution, billing & refund, terms of agreement", link: "https://rotech.sharepoint.com/sites/ComplianceandAccreditation/_layouts/15/guestaccess.aspx?share=IQClHlzj863ARYDAm43OEqn-Af821n6PaBBbcUgi17EMjBk&e=iuJrw2" },
+        { code: "OP 201", title: "Field Management Organizational Chart", link: "https://dome.rotech.com/trees/file?item=31255" },
       ]},
     ],
   },
@@ -356,33 +385,34 @@ const DATA = [
     id: "b4", num: "Binder 4", title: "Joint Commission / Operations", color: "var(--series-4)",
     sections: [
       { tab: "Tab 1 — Joint Commission (12-month history)", forms: [
-        { code: "OP 541", title: "Location Readiness Tool", note: "Completed January & July" },
-        { code: "JC 427", title: "Personnel Records Review", note: "Completed January & July" },
-        { code: "OP 519", title: "Infection Control Targeted Surveillance Log(s)" },
-        { code: "OP 542", title: "Infectious Disease Trending Report(s)", note: "Semi-annual" },
-        { code: "OP 752", title: "Influenza Vaccination Data Collection" },
-        { code: "OP 520", title: "In-Service Attendance Record" },
-        { code: "OP 201", title: "Field Management Organizational Chart" },
+        { code: "OP 541", title: "Location Readiness Tool", note: "Completed January & July", link: "https://dome.rotech.com/trees/file?item=32767" },
+        { code: "JC 427", title: "Personnel Records Review", note: "Completed January & July", link: "https://dome.rotech.com/trees/file?item=32899" },
+        { code: "OP 519", title: "Infection Control Targeted Surveillance Log(s)", link: "https://dome.rotech.com/trees/file?item=17232" },
+        { code: "OP 542", title: "Infectious Disease Trending Report(s)", note: "Semi-annual", link: "https://dome.rotech.com/trees/file?item=33009" },
+        { code: "OP 752", title: "Influenza Vaccination Data Collection", link: "https://dome.rotech.com/trees/file?item=20122" },
+        { code: "OP 520", title: "In-Service Attendance Record", link: "https://dome.rotech.com/trees/file?item=16819" },
+        { code: "OP 201", title: "Field Management Organizational Chart", link: "https://dome.rotech.com/trees/file?item=31255" },
       ]},
       { tab: "Tab 2 — Emergency Preparedness", forms: [
-        { code: "OP 525", title: "Emergency Preparedness Plan" },
-        { code: "OP 857", title: "Emergency Documentation & Recovery"},
-        { code: "RM 1240", title: "Emergency Action and Fire Prevention Plan" },
-        { code: "FDA 001", title: "Equipment Maintenance Log", note: "Documenting weekly smoke alarm checks" },
+        { code: "OP 525", title: "Emergency Preparedness Plan", link: "https://dome.rotech.com/trees/file?item=32797" },
+        { code: "OP 857", title: "Emergency Documentation & Recovery", note: "As applicable — if plan activated", link: "https://dome.rotech.com/trees/file?item=16806" },
+        { code: "RM 1240", title: "Emergency Action and Fire Prevention Plan", link: "https://dome.rotech.com/trees/file?item=16936" },
+        { code: "FDA 001", title: "Equipment Maintenance Log", note: "Documenting weekly smoke alarm checks", link: "https://dome.rotech.com/trees/file?item=16722" },
+        { code: "FDA 001", title: "Equipment Maintenance Log", note: "Documenting monthly check of emergency lighting & exit signs (as applicable)", link: "https://dome.rotech.com/trees/file?item=16722" },
       ]},
       { tab: "Tab 3 — Incidents", forms: [
-        { code: "OP 518", title: "Incident Report" },
-        { code: "RM 1202", title: "Vehicle Accident Report" },
+        { code: "OP 518", title: "Incident Report", link: "https://dome.rotech.com/trees/file?item=16820" },
+        { code: "RM 1202", title: "Vehicle Accident Report", link: "https://dome.rotech.com/trees/file?item=16958" },
       ]},
       { tab: "Tab 4 — Complaints", forms: [
-        { code: "OP 522", title: "Complaint Tracking Log" },
-        { code: "OP 564", title: "Complaint Report (Location)" },
-        { code: "OP 566", title: "Complaint Resolution Letter" },
+        { code: "OP 522", title: "Complaint Tracking Log", link: "https://dome.rotech.com/trees/file?item=16862" },
+        { code: "OP 564", title: "Complaint Report (Location)", link: "https://dome.rotech.com/trees/file?item=16861" },
+        { code: "OP 566", title: "Complaint Resolution Letter", link: "https://dome.rotech.com/trees/file?item=17265" },
       ]},
       { tab: "Tab 5 — Facility", forms: [
-        { code: "OP 512", title: "Facility Safety Inspection", note: "Completed January & July, with annual fire drill record" },
-        { code: "FDA 025", title: "Self-Calibrating Analyzer", note: "Manufacturer annual calibration / certification" },
-        { code: "FDA 003", title: "Oxygen Analyzer", note: "Manufacturer annual calibration / certification" },
+        { code: "OP 512", title: "Facility Safety Inspection", note: "Completed January & July, with annual fire drill record", link: "https://dome.rotech.com/trees/file?item=32887" },
+        { code: "FDA 025", title: "Self-Calibrating Analyzer", note: "Manufacturer annual calibration / certification", link: "https://dome.rotech.com/trees/file?item=21676" },
+        { code: "FDA 003", title: "Oxygen Analyzer", note: "Manufacturer annual calibration / certification", link: "https://dome.rotech.com/trees/file?item=16725" },
       ]},
     ],
   },
@@ -390,10 +420,30 @@ const DATA = [
     id: "b5", num: "Binder 5", title: "SDS / Hazardous Materials", color: "var(--series-5)",
     sections: [
       { tab: null, forms: [
-        { code: "RM 1232", title: "Hazardous Chemical Inventory List" },
-        { code: "RM 1233", title: "Site Specific Information Sheet" },
-        { code: "RM 1234", title: "Hazard Communication Program Training Record", note: "Copy also goes in employee file" },
-        { code: "RM 1238", title: "PPE Hazard Assessment Form", note: "Copy also goes in employee file" },
+        { code: "RM 1232", title: "Hazardous Chemical Inventory List", link: "https://dome.rotech.com/trees/file?item=16942" },
+        { code: "RM 1233", title: "Site Specific Information Sheet", link: "https://dome.rotech.com/trees/file?item=31491" },
+        { code: "RM 1234", title: "Hazard Communication Program Training Record", note: "Copy also goes in employee file", link: "https://dome.rotech.com/trees/file?item=16941" },
+        { code: "RM 1238", title: "PPE Hazard Assessment Form", note: "Job specific — copy also goes in employee file", variants: [
+          { title: "AE & Liaison", link: "https://dome.rotech.com/trees/file?item=17397" },
+          { title: "CSR", link: "https://dome.rotech.com/trees/file?item=17389" },
+          { title: "LCM", link: "https://dome.rotech.com/trees/file?item=17390" },
+          { title: "Murray Biomed Repair Center Associate", link: "https://dome.rotech.com/trees/file?item=33884" },
+          { title: "Murray Fulfillment", link: "https://dome.rotech.com/trees/file?item=33882" },
+          { title: "Murray Maintenance", link: "https://dome.rotech.com/trees/file?item=33883" },
+          { title: "PAP Specialist", link: "https://dome.rotech.com/trees/file?item=36122" },
+          { title: "PST", link: "https://dome.rotech.com/trees/file?item=17391" },
+          { title: "PST – CDL", link: "https://dome.rotech.com/trees/file?item=17393" },
+          { title: "PST (T-2 Sites)", link: "https://dome.rotech.com/trees/file?item=17392" },
+          { title: "Pharmacist", link: "https://dome.rotech.com/trees/file?item=34153" },
+          { title: "RC", link: "https://dome.rotech.com/trees/file?item=17394" },
+          { title: "Repair Technician", link: "https://dome.rotech.com/trees/file?item=17395" },
+          { title: "Service Center Supervisor", link: "https://dome.rotech.com/trees/file?item=17396" },
+          { title: "Transfill Delivery", link: "https://dome.rotech.com/trees/file?item=17398" },
+          { title: "Transfill Technician", link: "https://dome.rotech.com/trees/file?item=17399" },
+          { title: "Warehouse Clerk", link: "https://dome.rotech.com/trees/file?item=17400" },
+          { title: "Warehouse Supervisor", link: "https://dome.rotech.com/trees/file?item=17401" },
+          { title: "Warehouse Supervisor (T-2 Sites)", link: "https://dome.rotech.com/trees/file?item=17402" },
+        ]},
       ]},
     ],
   },
@@ -403,6 +453,13 @@ const container = document.getElementById("binders");
 
 function domeUrl(code) {
   return `${DOME_FALLBACK}?q=${encodeURIComponent(code)}`;
+}
+
+function openVariant(sel) {
+  if (sel.value) {
+    window.open(sel.value, "_blank", "noopener");
+    sel.selectedIndex = 0;
+  }
 }
 
 DATA.forEach(binder => {
@@ -430,11 +487,29 @@ DATA.forEach(binder => {
     section.forms.forEach(f => {
       const row = document.createElement("div");
       row.className = "form-row";
-      row.dataset.search = (f.code + " " + f.title + " " + (f.note || "")).toLowerCase();
+      const searchBits = [f.code, f.title, f.note || "", (f.variants || []).map(v => v.title).join(" ")];
+      row.dataset.search = searchBits.join(" ").toLowerCase();
+
+      let actionHtml;
+      if (f.variants) {
+        actionHtml = `
+          <select class="variant-select" onchange="openVariant(this)">
+            <option value="" selected disabled>Select job title…</option>
+            ${f.variants.map(v => `<option value="${v.link}">${v.title}</option>`).join("")}
+          </select>
+        `;
+      } else if (f.noLink) {
+        actionHtml = `<span class="local-note">Not in Dome</span>`;
+      } else if (f.link) {
+        actionHtml = `<a class="link-btn real" href="${f.link}" target="_blank" rel="noopener">Open ↗</a>`;
+      } else {
+        actionHtml = `<a class="link-btn" href="${domeUrl(f.code)}" target="_blank" rel="noopener" title="Placeholder link — replace with the exact Dome item URL">Add link ↗</a>`;
+      }
+
       row.innerHTML = `
         <span class="code">${f.code}</span>
         <span class="title">${f.title}${f.note ? `<span class="note">${f.note}</span>` : ""}</span>
-        <a class="link-btn" href="${domeUrl(f.code)}" target="_blank" rel="noopener" title="Placeholder link — replace with the exact Dome item URL">Add link ↗</a>
+        ${actionHtml}
       `;
       block.appendChild(row);
     });
