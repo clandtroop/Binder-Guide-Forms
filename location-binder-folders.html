@@ -317,7 +317,16 @@
     <header class="page-head">
       <h1>Location Binder Folders</h1>
       <p class="sub">Search or select a location, then open location binder folders directly in SharePoint.</p>
-      <h2>Last Update:<span id="update-date"></span></h2>
+      <p class="sub">Last Update:<span id="update-date"></span></p>
+        <script>
+        // document.lastModified returns a string from the server's HTTP header
+        const rawDate = document.lastModified; 
+  
+        // Format it nicely using the JavaScript Date object
+        const formattedDate = new Date(rawDate).toLocaleDateString();
+  
+        document.getElementById("update-date").textContent = formattedDate;
+        </script>
     </header>
 
     <div class="stats-row" id="statsRow"></div>
