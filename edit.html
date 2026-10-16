@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Binder Links Editor</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #ffffff;
+    --page-plane: #f6f8fa;
+    --text-primary: #131922;
+    --text-secondary: #5d6773;
+    --text-muted: #8892a0;
+    --gridline: #e7eaef;
+    --border: rgba(19,25,34,0.12);
+    --brand: #0053a1;
+    --ok: #1d7a4d;
+    --warn: #b06a00;
+    --bad: #c0394f;
+    --field: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --surface-1: #171b21;
+      --page-plane: #0d0f13;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c8d1;
+      --text-muted: #8892a0;
+      --gridline: #2a2f38;
+      --border: rgba(255,255,255,0.14);
+      --brand: #2e7fd6;
+      --ok: #2f9e68;
+      --warn: #d68a1f;
+      --bad: #d85770;
+      --field: #0f1216;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page-plane);
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+  button, input, select { font: inherit; color: inherit; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--brand); color: #fff;
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px;
+  }
+  .topbar h1 { font-size: 16px; margin: 0; font-weight: 650; }
+  .topbar .spacer { flex: 1; }
+  .pill {
+    font-size: 12px; padding: 4px 10px; border-radius: 999px;
+    background: rgba(255,255,255,0.18); white-space: nowrap;
+  }
+  .pill[data-state="dirty"] { background: #ffd27a; color: #3a2a00; }
+  .pill[data-state="error"] { background: #ffd0d7; color: #5c0f1c; }
+
+  .btn {
+    border: 1px solid var(--border); background: var(--surface-1);
+    padding: 7px 12px; border-radius: 8px; cursor: pointer; font-weight: 600;
+  }
+  .btn:hover { filter: brightness(0.97); }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .btn.primary { background: var(--brand); color: #fff; border-color: transparent; }
+  .topbar .btn.primary { background: #fff; color: var(--brand); }
+  .btn.danger { color: var(--bad); }
+  .btn.small { padding: 4px 9px; font-size: 12px; }
+  .btn.link { background: none; border: none; color: var(--brand); padding: 0; font-weight: 500; }
+
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 20px; }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px;
+  }
+  .muted { color: var(--text-muted); }
+  .hidden { display: none !important; }
+
+  /* connect screen */
+  .connect { max-width: 560px; margin: 40px auto; }
+  .connect h2 { margin: 0 0 6px; font-size: 18px; }
+  .connect p { color: var(--text-secondary); line-height: 1.5; margin: 0 0 14px; }
+  .connect .row { display: flex; gap: 8px; }
+  .connect input { flex: 1; }
+
+  input[type="text"], input[type="url"], input[type="password"], input[type="search"], select {
+    background: var(--field); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 10px; width: 100%; min-width: 0;
+  }
+  input:focus, select:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
+  input.invalid { border-color: var(--bad); }
+
+  .msg { margin-top: 10px; font-size: 13px; }
+  .msg.bad { color: var(--bad); }
+  .msg.ok { color: var(--ok); }
+
+  /* editor layout */
+  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+
+  .side { position: sticky; top: 64px; display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 84px); }
+  .side .filters { display: flex; gap: 8px; }
+  .side .filters select { width: 110px; flex: none; }
+  .loc-list { overflow: auto; border-top: 1px solid var(--gridline); margin: 0 -18px -18px; }
+  .loc-item {
+    display: block; width: 100%; text-align: left; border: none; background: none;
+    padding: 9px 18px; border-bottom: 1px solid var(--gridline); cursor: pointer;
+  }
+  .loc-item:hover { background: var(--page-plane); }
+  .loc-item[data-active="true"] { background: color-mix(in srgb, var(--brand) 12%, transparent); }
+  .loc-item .n { font-weight: 600; display: block; }
+  .loc-item .m { font-size: 12px; color: var(--text-muted); }
+  .loc-item .dot { color: var(--warn); font-weight: 700; }
+  .count { font-size: 12px; color: var(--text-muted); }
+
+  .form-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .form-head h2 { margin: 0; font-size: 18px; flex: 1; }
+  .grid3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .grid3 { grid-template-columns: 1fr; } }
+  label.f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+  .linkrow { display: flex; gap: 8px; align-items: end; margin-top: 12px; }
+  .linkrow label.f { flex: 1; }
+
+  h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin: 22px 0 8px; }
+  .folders { display: flex; flex-direction: column; gap: 8px; }
+  .frow {
+    display: grid; grid-template-columns: 120px 1.3fr 2fr auto auto; gap: 8px; align-items: center;
+    padding: 8px; border: 1px solid var(--gridline); border-radius: 10px;
+  }
+  @media (max-width: 760px) { .frow { grid-template-columns: 1fr 1fr; } .frow .wide { grid-column: 1 / -1; } }
+  .addrow { margin-top: 10px; display: flex; gap: 8px; }
+
+  .warnbox {
+    margin-top: 14px; padding: 10px 12px; border-radius: 8px; font-size: 13px;
+    background: color-mix(in srgb, var(--warn) 14%, transparent); color: var(--text-primary);
+  }
+  .foot { margin-top: 18px; font-size: 12px; color: var(--text-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Binder Links Editor</h1>
+  <span class="spacer"></span>
+  <span class="pill" id="status">Not connected</span>
+  <button class="btn primary" id="saveBtn" disabled>Save to site</button>
+</div>
+
+<!-- Connect screen: shown until a working token is saved in this browser -->
+<div class="wrap connect hidden" id="connectView">
+  <div class="card">
+    <h2>Connect to GitHub</h2>
+    <p>This editor saves changes to the Location Binder Folders page. Only someone with a GitHub token that can write to the <b>Binder-Guide-Forms</b> repository can use it. The token is stored only in this browser.</p>
+    <div class="row">
+      <input type="password" id="tokenInput" placeholder="Paste GitHub token (github_pat_…)" autocomplete="off">
+      <button class="btn primary" id="connectBtn">Connect</button>
+    </div>
+    <div class="msg" id="connectMsg"></div>
+  </div>
+</div>
+
+<!-- Editor -->
+<div class="wrap hidden" id="editorView">
+  <div class="layout">
+    <aside class="card side">
+      <div class="filters">
+        <input type="search" id="search" placeholder="Search locations…">
+        <select id="regionFilter"><option value="">All regions</option></select>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span class="count" id="locCount"></span>
+        <button class="btn small" id="addLocBtn">+ Add location</button>
+      </div>
+      <div class="loc-list" id="locList"></div>
+    </aside>
+
+    <main class="card" id="formCard">
+      <div class="form-head">
+        <h2 id="formTitle">Select a location</h2>
+        <button class="btn small danger hidden" id="deleteLocBtn">Delete location</button>
+      </div>
+
+      <div id="formBody" class="hidden">
+        <div class="grid3">
+          <label class="f">Location name<input type="text" id="fName"></label>
+          <label class="f">Region<input type="text" id="fRegion" list="regionList" placeholder="Region 8"></label>
+          <label class="f">Area<input type="text" id="fArea" list="areaList" placeholder="R8A2"></label>
+        </div>
+        <div class="linkrow">
+          <label class="f">Location folder link<input type="url" id="fLink" placeholder="https://rotech.sharepoint.com/…"></label>
+          <button class="btn" id="openLocLink" type="button">Open ↗</button>
+        </div>
+
+        <h3 class="sec">Folders</h3>
+        <div class="folders" id="folders"></div>
+        <div class="addrow">
+          <button class="btn small" id="addFolderBtn" type="button">+ Add folder</button>
+          <button class="btn small" id="addStdBtn" type="button">+ Add the 8 standard folders</button>
+        </div>
+        <div class="warnbox hidden" id="warnBox"></div>
+      </div>
+    </main>
+  </div>
+
+  <div class="foot">
+    <span id="lastUpdated"></span>
+    <span>Changes go live on the binder page about a minute after saving.</span>
+    <button class="btn link" id="forgetBtn" type="button">Forget token on this browser</button>
+  </div>
+</div>
+
+<datalist id="regionList"></datalist>
+<datalist id="areaList"></datalist>
+
+<script>
+const REPO = "clandtroop/Binder-Guide-Forms";
+const BRANCH = "main";
+const FILE = "locations.json";
+const TOKEN_KEY = "binderEditor.githubToken";
+const API = `https://api.github.com/repos/${REPO}/contents/${FILE}`;
+
+const TYPES = [
+  { v: "1", t: "Binder 1", label: "1 - Morning Meeting Binder" },
+  { v: "2", t: "Binder 2", label: "2 - In-Service Binder" },
+  { v: "3", t: "Binder 3", label: "3 - Site Inspection Binder" },
+  { v: "4", t: "Binder 4", label: "4 - Joint Commission - Operations Binder" },
+  { v: "5", t: "Binder 5", label: "5 - Safety Data Sheet (SDS) Binder" },
+  { v: "",  t: "Other folder", label: "" }
+];
+const STANDARD_OTHERS = ["Daily Documents", "OP 519 Employee Targeted Surveillance", "Virtual Site Visit and Follow-up Documents"];
+
+let token = "";
+let data = null;          // { updated, locations: [...] }
+let fileSha = "";
+let current = -1;         // index into data.locations
+let dirty = false;
+const touched = new Set();
+
+const $ = id => document.getElementById(id);
+
+/* ---------- token storage (only this browser) ---------- */
+function readToken() { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; } }
+function writeToken(t) { try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+
+function ghHeaders(extra) {
+  return Object.assign({
+    "Authorization": "Bearer " + token,
+    "X-GitHub-Api-Version": "2022-11-28"
+  }, extra || {});
+}
+
+function setStatus(text, state) {
+  const s = $("status");
+  s.textContent = text;
+  s.dataset.state = state || "";
+}
+
+/* ---------- load ---------- */
+async function loadFromGitHub() {
+  setStatus("Loading…");
+  // metadata (for sha + permission check)
+  const meta = await fetch(`${API}?ref=${BRANCH}`, { headers: ghHeaders({ Accept: "application/vnd.github+json" }), cache: "no-store" });
+  if (meta.status === 401) throw new Error("GitHub didn't accept that token. Check it was copied fully and hasn't expired.");
+  if (meta.status === 404) throw new Error("Couldn't find locations.json in the repository, or the token can't see this repository.");
+  if (!meta.ok) throw new Error("GitHub returned an error (" + meta.status + ").");
+  const m = await meta.json();
+  fileSha = m.sha;
+
+  // raw contents (file is over 1 MB, so ask for raw)
+  const raw = await fetch(`${API}?ref=${BRANCH}`, { headers: ghHeaders({ Accept: "application/vnd.github.raw+json" }), cache: "no-store" });
+  if (!raw.ok) throw new Error("Couldn't read locations.json (" + raw.status + ").");
+  data = JSON.parse(await raw.text());
+  if (!Array.isArray(data.locations)) throw new Error("locations.json is not in the expected format.");
+
+  // confirm the token can write
+  const repo = await fetch(`https://api.github.com/repos/${REPO}`, { headers: ghHeaders({ Accept: "application/vnd.github+json" }) });
+  const r = repo.ok ? await repo.json() : {};
+  if (!r.permissions || !r.permissions.push) {
+    throw new Error("This token can read the repository but can't save to it. Give it Contents: Read and write.");
+  }
+}
+
+async function connect(t) {
+  token = t.trim();
+  $("connectMsg").textContent = "";
+  $("connectMsg").className = "msg";
+  try {
+    await loadFromGitHub();
+    writeToken(token);
+    $("connectView").classList.add("hidden");
+    $("editorView").classList.remove("hidden");
+    dirty = false; touched.clear();
+    setStatus("All changes saved");
+    buildFilters();
+    renderList();
+    renderLastUpdated();
+    if (current >= 0 && current < data.locations.length) selectLoc(current); else showEmptyForm();
+  } catch (e) {
+    token = "";
+    showConnect(e.message);
+  }
+}
+
+function showConnect(message) {
+  $("editorView").classList.add("hidden");
+  $("connectView").classList.remove("hidden");
+  $("saveBtn").disabled = true;
+  setStatus("Not connected");
+  if (message) { $("connectMsg").textContent = message; $("connectMsg").className = "msg bad"; }
+}
+
+/* ---------- list ---------- */
+function sortLocations() {
+  const keep = data.locations[current];
+  data.locations.sort((a, b) =>
+    (a.region || "").localeCompare(b.region || "") ||
+    (a.area || "").localeCompare(b.area || "") ||
+    (a.name || "").localeCompare(b.name || ""));
+  current = keep ? data.locations.indexOf(keep) : -1;
+}
+
+function buildFilters() {
+  const regions = [...new Set(data.locations.map(l => l.region).filter(Boolean))].sort();
+  const areas = [...new Set(data.locations.map(l => l.area).filter(Boolean))].sort();
+  const sel = $("regionFilter");
+  const was = sel.value;
+  sel.innerHTML = '<option value="">All regions</option>';
+  regions.forEach(r => { const o = document.createElement("option"); o.value = r; o.textContent = r; sel.appendChild(o); });
+  sel.value = regions.includes(was) ? was : "";
+  $("regionList").innerHTML = ""; regions.forEach(r => { const o = document.createElement("option"); o.value = r; $("regionList").appendChild(o); });
+  $("areaList").innerHTML = ""; areas.forEach(a => { const o = document.createElement("option"); o.value = a; $("areaList").appendChild(o); });
+}
+
+function renderList() {
+  const q = $("search").value.trim().toLowerCase();
+  const rf = $("regionFilter").value;
+  const list = $("locList");
+  list.innerHTML = "";
+  let shown = 0;
+  data.locations.forEach((loc, i) => {
+    if (rf && loc.region !== rf) return;
+    const hay = `${loc.name} ${loc.region} ${loc.area}`.toLowerCase();
+    if (q && !hay.includes(q)) return;
+    shown++;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "loc-item";
+    b.dataset.active = String(i === current);
+    const n = document.createElement("span"); n.className = "n"; n.textContent = loc.name || "(unnamed location)";
+    if (touched.has(loc)) { const d = document.createElement("span"); d.className = "dot"; d.textContent = " •"; d.title = "Edited, not saved yet"; n.appendChild(d); }
+    const m = document.createElement("span"); m.className = "m"; m.textContent = `${loc.region || "?"} · ${loc.area || "?"}`;
+    b.append(n, m);
+    b.addEventListener("click", () => selectLoc(i));
+    list.appendChild(b);
+  });
+  $("locCount").textContent = `${shown} of ${data.locations.length} locations`;
+}
+
+/* ---------- form ---------- */
+function showEmptyForm() {
+  current = -1;
+  $("formTitle").textContent = "Select a location";
+  $("formBody").classList.add("hidden");
+  $("deleteLocBtn").classList.add("hidden");
+}
+
+function selectLoc(i) {
+  current = i;
+  const loc = data.locations[i];
+  $("formTitle").textContent = loc.name || "New location";
+  $("formBody").classList.remove("hidden");
+  $("deleteLocBtn").classList.remove("hidden");
+  resetDeleteBtn();
+  $("fName").value = loc.name || "";
+  $("fRegion").value = loc.region || "";
+  $("fArea").value = loc.area || "";
+  $("fLink").value = loc.link || "";
+  renderFolders();
+  validate();
+  renderList();
+}
+
+function markDirty() {
+  const loc = data.locations[current];
+  if (loc) touched.add(loc);
+  if (!dirty) { dirty = true; }
+  setStatus("Unsaved changes", "dirty");
+  $("saveBtn").disabled = false;
+}
+
+function bindField(id, key) {
+  $(id).addEventListener("input", () => {
+    const loc = data.locations[current]; if (!loc) return;
+    loc[key] = $(id).value.trim();
+    if (key === "name") $("formTitle").textContent = loc.name || "New location";
+    markDirty(); validate(); renderList();
+  });
+}
+bindField("fName", "name");
+bindField("fRegion", "region");
+bindField("fArea", "area");
+bindField("fLink", "link");
+
+function openUrl(u) { if (/^https:\/\//i.test(u)) window.open(u, "_blank", "noopener"); }
+$("openLocLink").addEventListener("click", () => openUrl($("fLink").value.trim()));
+
+function renderFolders() {
+  const loc = data.locations[current];
+  const box = $("folders");
+  box.innerHTML = "";
+  (loc.subs || []).forEach((s, idx) => box.appendChild(folderRow(loc, s, idx)));
+  if (!loc.subs || loc.subs.length === 0) {
+    const p = document.createElement("div"); p.className = "muted"; p.textContent = "No folders yet.";
+    box.appendChild(p);
+  }
+}
+
+function folderRow(loc, s, idx) {
+  const row = document.createElement("div");
+  row.className = "frow";
+
+  const type = document.createElement("select");
+  TYPES.forEach(t => { const o = document.createElement("option"); o.value = t.v; o.textContent = t.t; type.appendChild(o); });
+  type.value = s.num ? String(s.num) : "";
+  type.title = "Binder number or other folder";
+
+  const label = document.createElement("input");
+  label.type = "text"; label.value = s.label || ""; label.placeholder = "Folder name";
+
+  const link = document.createElement("input");
+  link.type = "url"; link.value = s.link || ""; link.placeholder = "Paste the folder link"; link.className = "wide";
+  link.dataset.role = "folderLink";
+
+  const open = document.createElement("button");
+  open.type = "button"; open.className = "btn small"; open.textContent = "Open ↗";
+  open.addEventListener("click", () => openUrl(link.value.trim()));
+
+  const del = document.createElement("button");
+  del.type = "button"; del.className = "btn small danger"; del.textContent = "Remove";
+  del.addEventListener("click", () => { loc.subs.splice(idx, 1); markDirty(); renderFolders(); validate(); });
+
+  type.addEventListener("change", () => {
+    if (type.value) {
+      s.num = Number(type.value);
+      const std = TYPES.find(t => t.v === type.value);
+      if (!label.value.trim()) { label.value = std.label; s.label = std.label; }
+    } else {
+      delete s.num;
+    }
+    markDirty(); validate();
+  });
+  label.addEventListener("input", () => { s.label = label.value.trim(); markDirty(); validate(); });
+  link.addEventListener("input", () => { s.link = link.value.trim(); markDirty(); validate(); });
+
+  row.append(type, label, link, open, del);
+  return row;
+}
+
+function newSub(num, label) {
+  const s = { label: label || "", link: "", count: 0 };
+  return num ? Object.assign({ num }, s) : s;
+}
+
+$("addFolderBtn").addEventListener("click", () => {
+  const loc = data.locations[current]; if (!loc) return;
+  loc.subs = loc.subs || [];
+  loc.subs.push(newSub(null, ""));
+  markDirty(); renderFolders(); validate();
+  const inputs = $("folders").querySelectorAll('input[type="text"]');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+});
+
+$("addStdBtn").addEventListener("click", () => {
+  const loc = data.locations[current]; if (!loc) return;
+  loc.subs = loc.subs || [];
+  const have = new Set(loc.subs.map(s => s.num ? "n" + s.num : (s.label || "").toLowerCase()));
+  TYPES.filter(t => t.v).forEach(t => { if (!have.has("n" + t.v)) loc.subs.push(newSub(Number(t.v), t.label)); });
+  STANDARD_OTHERS.forEach(l => { if (!have.has(l.toLowerCase())) loc.subs.push(newSub(null, l)); });
+  markDirty(); renderFolders(); validate();
+});
+
+$("addLocBtn").addEventListener("click", () => {
+  const rf = $("regionFilter").value;
+  const loc = { region: rf || "", area: "", name: "", link: "", subs: [] };
+  data.locations.push(loc);
+  current = data.locations.length - 1;
+  touched.add(loc);
+  $("search").value = "";
+  markDirty();
+  selectLoc(current);
+  $("fName").focus();
+});
+
+/* delete: click twice to confirm (no browser pop-up) */
+let deleteArmed = false;
+function resetDeleteBtn() { deleteArmed = false; $("deleteLocBtn").textContent = "Delete location"; }
+$("deleteLocBtn").addEventListener("click", () => {
+  if (current < 0) return;
+  if (!deleteArmed) { deleteArmed = true; $("deleteLocBtn").textContent = "Click again to delete"; setTimeout(resetDeleteBtn, 4000); return; }
+  const loc = data.locations[current];
+  touched.delete(loc);
+  data.locations.splice(current, 1);
+  dirty = true; setStatus("Unsaved changes", "dirty"); $("saveBtn").disabled = false;
+  deletedNames.push(loc.name || "unnamed location");
+  showEmptyForm();
+  buildFilters();
+  renderList();
+});
+const deletedNames = [];
+
+/* ---------- validation ---------- */
+function problemsFor(loc) {
+  const p = [];
+  if (!loc.name) p.push("Location name is empty.");
+  if (!loc.region) p.push("Region is empty.");
+  if (!loc.area) p.push("Area is empty.");
+  if (loc.link && !/^https:\/\//i.test(loc.link)) p.push("Location link must start with https://");
+  (loc.subs || []).forEach((s, i) => {
+    const name = s.label || `Folder ${i + 1}`;
+    if (!s.label) p.push(`Folder ${i + 1} has no name.`);
+    if (!s.link) p.push(`"${name}" has no link.`);
+    else if (!/^https:\/\//i.test(s.link)) p.push(`"${name}" link must start with https://`);
+  });
+  const nums = (loc.subs || []).filter(s => s.num).map(s => s.num);
+  const dup = nums.find((n, i) => nums.indexOf(n) !== i);
+  if (dup) p.push(`Binder ${dup} is listed more than once.`);
+  return p;
+}
+
+function validate() {
+  const loc = data.locations[current];
+  if (!loc) return;
+  const p = problemsFor(loc);
+  const box = $("warnBox");
+  if (p.length) { box.textContent = p.join("  "); box.classList.remove("hidden"); }
+  else box.classList.add("hidden");
+  $("fLink").classList.toggle("invalid", !!loc.link && !/^https:\/\//i.test(loc.link));
+  $("folders").querySelectorAll('input[data-role="folderLink"]').forEach(inp => {
+    const v = inp.value.trim();
+    inp.classList.toggle("invalid", !v || !/^https:\/\//i.test(v));
+  });
+}
+
+/* ---------- save ---------- */
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function serialize(d) {
+  return '{\n"updated": ' + JSON.stringify(d.updated) + ',\n"locations": [\n' +
+    d.locations.map(l => JSON.stringify(l)).join(",\n") + "\n]\n}\n";
+}
+
+function toBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+function commitMessage() {
+  const names = [...touched].map(l => l.name || "new location");
+  const parts = [];
+  if (names.length) parts.push("edited " + names.slice(0, 5).join(", ") + (names.length > 5 ? ` and ${names.length - 5} more` : ""));
+  if (deletedNames.length) parts.push("removed " + deletedNames.join(", "));
+  return "Update binder links: " + (parts.join("; ") || "changes");
+}
+
+$("saveBtn").addEventListener("click", save);
+async function save() {
+  // block saving if any edited location has problems
+  for (const loc of touched) {
+    const p = problemsFor(loc);
+    if (p.length) {
+      selectLoc(data.locations.indexOf(loc));
+      setStatus("Fix the highlighted fields first", "error");
+      return;
+    }
+  }
+  $("saveBtn").disabled = true;
+  setStatus("Saving…");
+  const previous = data.updated;
+  data.updated = todayISO();
+  sortLocations();
+  try {
+    const res = await fetch(API, {
+      method: "PUT",
+      headers: ghHeaders({ Accept: "application/vnd.github+json", "Content-Type": "application/json" }),
+      body: JSON.stringify({ message: commitMessage(), content: toBase64(serialize(data)), sha: fileSha, branch: BRANCH })
+    });
+    if (res.status === 409 || res.status === 422) {
+      data.updated = previous;
+      throw new Error("The file changed on GitHub since you opened the editor. Copy any new links somewhere, then reload this page and re-enter them.");
+    }
+    if (res.status === 401 || res.status === 403) {
+      data.updated = previous;
+      throw new Error("GitHub refused the save. The token may have expired or lost write access.");
+    }
+    if (!res.ok) { data.updated = previous; throw new Error("Save failed (" + res.status + ")."); }
+    const out = await res.json();
+    fileSha = out.content.sha;
+    dirty = false; touched.clear(); deletedNames.length = 0;
+    setStatus("Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
+    buildFilters();
+    renderList();
+    renderLastUpdated();
+    if (current >= 0) selectLoc(current);
+  } catch (e) {
+    setStatus("Not saved", "error");
+    $("saveBtn").disabled = false;
+    alertBox(e.message);
+  }
+}
+
+function alertBox(text) {
+  const box = $("warnBox");
+  if (current < 0) { $("formTitle").textContent = text; return; }
+  box.textContent = text;
+  box.classList.remove("hidden");
+}
+
+function renderLastUpdated() {
+  if (!data || !data.updated) { $("lastUpdated").textContent = ""; return; }
+  const d = new Date(data.updated + "T12:00:00");
+  $("lastUpdated").textContent = "Page last updated " + d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+
+/* ---------- wiring ---------- */
+$("search").addEventListener("input", renderList);
+$("regionFilter").addEventListener("change", renderList);
+$("connectBtn").addEventListener("click", () => connect($("tokenInput").value));
+$("tokenInput").addEventListener("keydown", e => { if (e.key === "Enter") connect($("tokenInput").value); });
+$("forgetBtn").addEventListener("click", () => {
+  writeToken(""); token = ""; data = null; current = -1; touched.clear(); dirty = false;
+  $("tokenInput").value = "";
+  showConnect();
+});
+window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+const saved = readToken();
+if (saved) connect(saved); else showConnect();
+</script>
+</body>
+</html>
