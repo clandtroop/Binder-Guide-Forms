@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Location Binder Folders</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1:      #ffffff;
+    --page-plane:     #f6f8fa;
+    --text-primary:   #131922;
+    --text-secondary: #5d6773;
+    --text-muted:     #8892a0;
+    --gridline:       #e7eaef;
+    --border:         rgba(19,25,34,0.08);
+    --brand:          #0053a1;
+    --series-1: #0053a1; /* Binder 1 — OP 519 Targeted Surveillance (blue) */
+    --series-2: #1d7a4d; /* Binder 2 — Binder Documents (green) */
+    --series-3: #b06a00; /* Binder 3 — Daily Documents (amber) */
+    --series-4: #00a0c6; /* Binder 4 — Virtual Site Visit & Follow-up (teal) */
+    --series-5: #c0394f; /* Binder 5 — Safety Data Sheet (SDS) Binder (red) */
+    --series-x: #7a8390; /* Virtual Visit Files (ungrouped / legacy folders) */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1:      #171b21;
+      --page-plane:     #0d0f13;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c8d1;
+      --text-muted:     #8892a0;
+      --gridline:       #2a2f38;
+      --border:         rgba(255,255,255,0.10);
+      --brand:          #2e7fd6;
+      --series-1: #2e7fd6;
+      --series-2: #2f9e68;
+      --series-3: #d68a1f;
+      --series-4: #29b8dc;
+      --series-5: #d85770;
+      --series-x: #9aa3b0;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1:      #171b21;
+    --page-plane:     #0d0f13;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c8d1;
+    --text-muted:     #8892a0;
+    --gridline:       #2a2f38;
+    --border:         rgba(255,255,255,0.10);
+    --brand:          #2e7fd6;
+    --series-1: #2e7fd6;
+    --series-2: #2f9e68;
+    --series-3: #d68a1f;
+    --series-4: #29b8dc;
+    --series-5: #d85770;
+    --series-x: #9aa3b0;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .viz-root {
+    display: block;
+    min-height: 100vh;
+    background: var(--page-plane);
+    color: var(--text-primary);
+  }
+
+  .app-nav {
+    background: var(--brand);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 20px;
+  }
+  .app-nav .brand-mark {
+    background: #ffffff;
+    color: var(--brand);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    padding: 7px 14px;
+    border-radius: 999px;
+  }
+  .app-nav .app-title { color: #ffffff; font-weight: 700; font-size: 15px; }
+  .app-nav .spacer { flex: 1 1 auto; }
+  .app-nav .app-meta { color: rgba(255,255,255,0.85); font-size: 12px; }
+  .app-nav .theme-toggle {
+    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+    font-size: 12px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .app-nav .theme-toggle:hover { background: rgba(255,255,255,0.22); }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 20px 64px; }
+
+  header.page-head { margin-bottom: 16px; }
+  header.page-head h1 { font-size: 24px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.01em; }
+  header.page-head p.sub { margin: 0; color: var(--text-secondary); font-size: 13.5px; }
+
+  .stats-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .stats-row b { color: var(--text-primary); }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+
+  .picker {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(19,25,34,0.06), 0 1px 2px rgba(19,25,34,0.04);
+    padding: 14px;
+  }
+  .picker h3 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin: 2px 4px 10px;
+  }
+  #locSearch {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--page-plane);
+    color: var(--text-primary);
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  #locSearch:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+
+  .region-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .chip {
+    border: 1px solid var(--border);
+    background: var(--page-plane);
+    color: var(--text-secondary);
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .chip[data-active="true"] { color: #ffffff; border-color: transparent; background: var(--brand); }
+
+  .loc-count { font-size: 11.5px; color: var(--text-muted); margin: 0 4px 8px; }
+
+  .loc-list { display: flex; flex-direction: column; gap: 4px; max-height: 560px; overflow-y: auto; }
+  .loc-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+  }
+  .loc-item:hover { background: var(--gridline); }
+  .loc-item[data-active="true"] {
+    background: color-mix(in srgb, var(--brand) 10%, transparent);
+    border-color: color-mix(in srgb, var(--brand) 35%, transparent);
+  }
+  .loc-item .loc-name { font-size: 13.5px; font-weight: 700; color: var(--text-primary); }
+  .loc-item .loc-meta { font-size: 11px; color: var(--text-muted); }
+
+  .summary {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--brand);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(19,25,34,0.06), 0 1px 2px rgba(19,25,34,0.04);
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 640px) { .summary { grid-template-columns: 1fr; } }
+  .summary .sfield .slabel {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  .summary .sfield .svalue { font-size: 14.5px; font-weight: 700; color: var(--text-primary); }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin: 4px 4px 10px;
+  }
+  #otherSection { margin-top: 22px; }
+  .hidden { display: none !important; }
+
+  .folder-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 820px) { .folder-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .folder-grid { grid-template-columns: 1fr; } }
+
+  .folder-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--accent, var(--series-1));
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(19,25,34,0.06), 0 1px 2px rgba(19,25,34,0.04);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .folder-card .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .folder-card .ficon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--accent, var(--series-1)) 14%, transparent);
+    flex: none;
+  }
+  .folder-card .ficon svg { width: 20px; height: 20px; color: var(--accent, var(--series-1)); }
+  .folder-card .num {
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent, var(--series-1));
+  }
+  .folder-card h3 { font-size: 14.5px; font-weight: 700; margin: 0; color: var(--text-primary); line-height: 1.3; flex: 1 1 auto; }
+  .folder-card .fname { font-size: 11px; color: var(--text-muted); margin-top: -6px; }
+  .folder-card .meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    padding-top: 8px;
+    border-top: 1px solid var(--gridline);
+  }
+  .open-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #ffffff;
+    background: var(--accent, var(--series-1));
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+  .open-btn:hover { filter: brightness(1.08); }
+
+  footer.note {
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    border-top: 1px solid var(--gridline);
+    padding-top: 14px;
+  }
+  footer.note code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: var(--gridline);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="viz-root">
+
+  <nav class="app-nav">
+    <span class="brand-mark">ROTECH</span>
+    <span class="app-title">Accreditation</span>
+    <span class="spacer"></span>
+    <span class="app-meta">Virtual Location Binder Folders</span>
+    <button class="theme-toggle" id="themeToggle" type="button">🌙 Dark mode</button>
+  </nav>
+
+  <div class="wrap">
+
+    <header class="page-head">
+      <h1>Location Binder Folders</h1>
+      <p class="sub">Search or select a location, then open location binder folders directly in SharePoint.</p>
+    </header>
+
+    <div class="stats-row" id="statsRow"></div>
+
+    <div class="layout">
+      <div class="picker">
+        <h3>Locations</h3>
+        <input id="locSearch" type="text" placeholder="Search by city, state, region, or area…">
+        <div class="region-chips" id="regionChips"></div>
+        <div class="loc-count" id="locCount"></div>
+        <div class="loc-list" id="locList"></div>
+      </div>
+
+      <div>
+        <div class="summary" id="summary"></div>
+        <h2 class="section-title">Binders</h2>
+        <div class="folder-grid" id="folders"></div>
+        <div id="otherSection" class="hidden">
+          <h2 class="section-title">Virtual Visits</h2>
+          <div class="folder-grid" id="otherFolders"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="note">
+      <span id="lastUpdated"></span>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+const FOLDER_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path></svg>';
+
+const SLOT_ACCENT = { 1: "var(--series-1)", 2: "var(--series-2)", 3: "var(--series-3)", 4: "var(--series-4)", 5: "var(--series-5)" };
+
+// Folder links live in locations.json (edit them with edit.html).
+let LOCATIONS = [];
+let LAST_UPDATED = "";
+
+let REGIONS = [];
+
+let activeIndex = 0;
+let activeRegion = "all";
+
+function accentFor(num) {
+  return SLOT_ACCENT[num] || "var(--series-x)";
+}
+
+function matchesQuery(loc, q) {
+  if (!q) return true;
+  const hay = (loc.name + " " + loc.region + " " + loc.area).toLowerCase();
+  return hay.includes(q);
+}
+
+function filteredLocations() {
+  const q = document.getElementById("locSearch").value.trim().toLowerCase();
+  return LOCATIONS.filter(l => (activeRegion === "all" || l.region === activeRegion) && matchesQuery(l, q));
+}
+
+function renderStats() {
+  const regionCount = REGIONS.length;
+  document.getElementById("statsRow").innerHTML = `
+    <span><b>${LOCATIONS.length}</b> locations</span>
+    <span><b>${regionCount}</b> regions</span>
+  `;
+}
+
+function renderRegionChips() {
+  const el = document.getElementById("regionChips");
+  el.innerHTML = "";
+  const all = document.createElement("div");
+  all.className = "chip";
+  all.dataset.active = String(activeRegion === "all");
+  all.textContent = "All regions";
+  all.addEventListener("click", () => { activeRegion = "all"; selectFirstFiltered(); render(); });
+  el.appendChild(all);
+  REGIONS.forEach(r => {
+    const chip = document.createElement("div");
+    chip.className = "chip";
+    chip.dataset.active = String(activeRegion === r);
+    chip.textContent = r.replace("Region ", "R");
+    chip.title = r;
+    chip.addEventListener("click", () => { activeRegion = r; selectFirstFiltered(); render(); });
+    el.appendChild(chip);
+  });
+}
+
+// keep the selected location valid whenever the filter set changes;
+// fall back to the first result in the current filter, if any.
+function selectFirstFiltered() {
+  const list = filteredLocations();
+  if (list.length === 0) return;
+  if (!list.includes(LOCATIONS[activeIndex])) {
+    activeIndex = LOCATIONS.indexOf(list[0]);
+  }
+}
+
+function renderLocations() {
+  const list = filteredLocations();
+  document.getElementById("locCount").textContent = `${list.length} location${list.length === 1 ? "" : "s"}`;
+  const listEl = document.getElementById("locList");
+  listEl.innerHTML = "";
+  list.forEach((loc) => {
+    const globalIndex = LOCATIONS.indexOf(loc);
+    const btn = document.createElement("button");
+    btn.className = "loc-item";
+    btn.type = "button";
+    btn.dataset.active = String(globalIndex === activeIndex);
+    btn.innerHTML = `
+      <span class="loc-name">${loc.name}</span>
+      <span class="loc-meta">${loc.region} · ${loc.area}</span>
+    `;
+    btn.addEventListener("click", () => { activeIndex = globalIndex; render(); });
+    listEl.appendChild(btn);
+  });
+}
+
+function renderSummary(loc) {
+  document.getElementById("summary").innerHTML = `
+    <div class="sfield"><div class="slabel">Location</div><div class="svalue">${loc.name}</div></div>
+    <div class="sfield"><div class="slabel">Region</div><div class="svalue">${loc.region}</div></div>
+    <div class="sfield"><div class="slabel">Area</div><div class="svalue">${loc.area}</div></div>
+  `;
+}
+
+const CANONICAL_BINDER = {
+  1: "Morning Meeting",
+  2: "In-Service",
+  3: "Site Inspection",
+  4: "Joint Commission / Operations",
+  5: "SDS / Hazardous Materials"
+};
+
+function folderCard(s) {
+  const accent = accentFor(s.num);
+  const card = document.createElement("div");
+  card.className = "folder-card";
+  card.style.setProperty("--accent", accent);
+  const title = s.num ? (CANONICAL_BINDER[s.num] || s.label) : s.label;
+  card.innerHTML = `
+    <div class="top-row">
+      <div class="ficon">${FOLDER_ICON}</div>
+      <span class="num">${s.num ? "Binder " + s.num : "Virtual Visit File"}</span>
+    </div>
+    <h3>${title}</h3>
+    ${s.num ? `<div class="fname">${s.label}</div>` : ""}
+    <div class="meta-row"><span>${s.count} item${s.count === 1 ? "" : "s"}</span></div>
+    <a class="open-btn" href="${s.link}" target="_blank" rel="noopener">Open Folder ↗</a>
+  `;
+  return card;
+}
+
+function renderFolders(loc) {
+  const binders = loc.subs.filter(s => s.num);
+  const others = loc.subs.filter(s => !s.num);
+
+  const grid = document.getElementById("folders");
+  grid.innerHTML = "";
+  binders.forEach(s => grid.appendChild(folderCard(s)));
+
+  const otherSection = document.getElementById("otherSection");
+  const otherGrid = document.getElementById("otherFolders");
+  otherGrid.innerHTML = "";
+  if (others.length > 0) {
+    others.forEach(s => otherGrid.appendChild(folderCard(s)));
+    otherSection.classList.remove("hidden");
+  } else {
+    otherSection.classList.add("hidden");
+  }
+}
+
+function render() {
+  renderRegionChips();
+  renderLocations();
+  const loc = LOCATIONS[activeIndex];
+  renderSummary(loc);
+  renderFolders(loc);
+}
+
+document.getElementById("locSearch").addEventListener("input", () => { if (LOCATIONS.length) { selectFirstFiltered(); render(); } });
+
+function showLastUpdated() {
+  const el = document.getElementById("lastUpdated");
+  if (!el || !LAST_UPDATED) return;
+  const d = new Date(LAST_UPDATED + "T12:00:00");
+  if (isNaN(d)) return;
+  el.textContent = "Last updated " + d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+
+async function loadLocations() {
+  try {
+    const res = await fetch("locations.json?v=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    LOCATIONS = (data.locations || []).slice().sort((a, b) =>
+      a.region.localeCompare(b.region) || a.area.localeCompare(b.area) || a.name.localeCompare(b.name));
+    LAST_UPDATED = data.updated || "";
+    REGIONS = [...new Set(LOCATIONS.map(l => l.region))].sort();
+    activeIndex = 0;
+    renderStats();
+    if (LOCATIONS.length) render();
+    showLastUpdated();
+  } catch (err) {
+    document.getElementById("locCount").textContent = "Couldn't load the folder list. Refresh to try again.";
+    console.error("locations.json failed to load", err);
+  }
+}
+loadLocations();
+
+// theme toggle
+const toggleBtn = document.getElementById("themeToggle");
+toggleBtn.addEventListener("click", () => {
+  const root = document.documentElement;
+  const isDark = root.getAttribute("data-theme") === "dark";
+  root.setAttribute("data-theme", isDark ? "light" : "dark");
+  toggleBtn.textContent = isDark ? "🌙 Dark mode" : "☀️ Light mode";
+});
+
+
+</script>
+</body>
+</html>
