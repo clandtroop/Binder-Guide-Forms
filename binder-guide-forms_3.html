@@ -18,7 +18,7 @@
     --series-1: #0053a1; /* Binder 1 — Morning Meeting (blue) */
     --series-2: #1d7a4d; /* Binder 2 — In-Service (green) */
     --series-3: #b06a00; /* Binder 3 — Site Inspection (amber) */
-    --series-4: #00a0c6; /* Binder 4 — Joint Commission / Operations (teal) */
+    --series-4: #00a0c6; /* Binder 4 — Accreditation / Operations (teal) */
     --series-5: #c0394f; /* Binder 5 — SDS / Hazardous Materials (red) */
   }
   @media (prefers-color-scheme: dark) {
@@ -331,7 +331,7 @@
       <div class="chip" data-filter="b1" style="--chip-accent: var(--series-1)"><span class="dot" style="background:var(--series-1)"></span>Morning Meeting</div>
       <div class="chip" data-filter="b2" style="--chip-accent: var(--series-2)"><span class="dot" style="background:var(--series-2)"></span>In-Service</div>
       <div class="chip" data-filter="b3" style="--chip-accent: var(--series-3)"><span class="dot" style="background:var(--series-3)"></span>Site Inspection</div>
-      <div class="chip" data-filter="b4" style="--chip-accent: var(--series-4)"><span class="dot" style="background:var(--series-4)"></span>Joint Commission / Ops</div>
+      <div class="chip" data-filter="b4" style="--chip-accent: var(--series-4)"><span class="dot" style="background:var(--series-4)"></span>Accreditation / Ops</div>
       <div class="chip" data-filter="b5" style="--chip-accent: var(--series-5)"><span class="dot" style="background:var(--series-5)"></span>SDS / Hazmat</div>
     </div>
 
@@ -382,7 +382,7 @@ const DATA = [
     ],
   },
   {
-    id: "b4", num: "Binder 4", title: "Joint Commission / Operations", color: "var(--series-4)",
+    id: "b4", num: "Binder 4", title: "Accreditation / Operations", color: "var(--series-4)",
     sections: [
       { tab: "Tab 1 — Joint Commission (12-month history)", forms: [
         { code: "OP 540", title: "EMR Audit Tool", note: "(20 Semi-Annually)", link: "https://dome.rotech.com/trees/file?item=33841" },
